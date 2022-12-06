@@ -30,4 +30,31 @@ main = do
     f <- readFile "./input.txt"
     --f <- readFile "./test.txt"
     print $ task1 f
+    print $ task1O1 f
     print $ task2 f
+    print $ task2O1 f
+
+
+----O(1) space versions----
+fromLineO1 :: Text -> ((Integer,Integer), (Integer,Integer))
+fromLineO1 t = ((a,b),(c,d))
+    where 
+        s   = splitOn (pack ",") t
+        r1  = splitOn (pack "-") (head s)
+        a   = read $ unpack (head r1)
+        b   = read $ unpack (r1!!1)
+        r2  = splitOn (pack "-") (s!!1)
+        c   = read $ unpack (head r2)
+        d   = read $ unpack (r2!!1)
+
+isIncludedO1 :: (Integer, Integer) -> (Integer, Integer) -> Bool
+isIncludedO1 a b = (fst a <= fst b && snd a >= snd b) || (fst a >= fst b && snd a <= snd b)
+
+overlapsO1 :: (Integer, Integer) -> (Integer, Integer) -> Bool
+overlapsO1 a b = (fst a <= fst b && fst b <= snd a) || (fst b <= fst a && fst a <= snd b)
+
+task1O1 :: String -> Integer
+task1O1 s = toInteger.length $ filter (uncurry isIncludedO1 . fromLineO1 . pack) (lines s)
+
+task2O1 :: String -> Integer
+task2O1 s = toInteger.length $ filter (uncurry overlapsO1 . fromLineO1 . pack) (lines s)
