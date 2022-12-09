@@ -3,7 +3,7 @@ import Data.List (nub)
 
 type Position = (Integer, Integer)
 type Cmd = (Char, Integer)
-type Rope2 = [Position]
+type Rope = [Position]
 
 toCmd :: String -> Cmd
 toCmd l = (c, d)
@@ -12,7 +12,7 @@ toCmd l = (c, d)
         d = read $ drop 2 l
 
 
-move :: Rope2 -> [Position] -> Cmd -> (Rope2, [Position])
+move :: Rope -> [Position] -> Cmd -> (Rope, [Position])
 move r l (_ , 0) = (r , l)
 move ((hx,hy):rs) l ('U', d) = move newPos newL ('U', d-1) 
     where
@@ -31,7 +31,7 @@ move ((hx,hy):rs) l ('R', d) =  move newPos newL ('R', d-1)
         newPos = moveTail ((hx+1,hy):rs)
         newL = last newPos : l
 
-moveTail :: Rope2 -> Rope2 
+moveTail :: Rope -> Rope 
 moveTail ((hx,hy):(tx,ty):rs)  | max (abs(hx - tx)) (abs(hy-ty)) <= 1 = (hx,hy):(tx,ty):rs 
                                 | hx == tx && hy > ty = (hx,hy) : moveTail ((tx,ty+1):rs)
                                 | hx == tx && hy < ty = (hx,hy) : moveTail ((tx,ty-1):rs)
@@ -43,13 +43,13 @@ moveTail ((hx,hy):(tx,ty):rs)  | max (abs(hx - tx)) (abs(hy-ty)) <= 1 = (hx,hy):
                                 | hx > tx && hy < ty = (hx,hy) : moveTail ((tx+1,ty-1):rs)
 moveTail a = a
 
-moveAll :: Rope2 -> [Position] -> [Cmd] -> (Rope2, [Position])
+moveAll :: Rope -> [Position] -> [Cmd] -> (Rope, [Position])
 moveAll r p (c:cs) = moveAll r' p' cs
     where 
         (r', p') = move r p c
 moveAll r p [] = (r,p)
 
-initR :: Int -> Rope2
+initR :: Int -> Rope
 initR x = replicate x (0, 0)
 
 main :: IO ()
