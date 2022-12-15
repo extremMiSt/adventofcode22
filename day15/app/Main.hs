@@ -1,6 +1,7 @@
 module Main where
 import qualified Data.Text as T
 import qualified Data.Set as S
+import Data.List (nub)
 
 type Point = (Integer,Integer)
 type Distance = Integer
@@ -55,8 +56,8 @@ main = do
     --f <- readFile "./test.txt"
     let p = map parse (lines f)
     let t = map distance p
-    print $ S.size (removeAll (inReachAll S.empty t 2000000) (map snd p))
+    let task1 =  S.size (removeAll (inReachAll S.empty t 2000000) (map snd p))
+    print task1
 
-    let bs = head (filter (isPossible t) (allPerimiters t))
-    print $ (fst bs*4000000)+snd bs
-    undefined
+    let task2 = head (filter (isPossible t) (allPerimiters t))
+    print $ (fst task2*4000000)+snd task2
