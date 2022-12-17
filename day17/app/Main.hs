@@ -52,6 +52,38 @@ towers field wind (s:shape) = field : towers field' wind' shape
 height :: (Num a1, Ord a1) => S.Set (a2, a1) -> a1
 height tower = 0 `fromMaybe` S.lookupMax (S.map snd tower)
 
+towersFast :: [Char] -> Int -> Integer
+towersFast f n = height tower1 + (((toInteger n - 124) `div` 1695)*(height (t!!(1695+124)) - height (t!!124)))
+    where 
+        t = towers S.empty (cycle (init f)) rocks
+        tower1 = t!! (124 + ((n - 124) `mod` 1695))   
+
+main :: IO ()
+main = do
+    f <- readFile "./input.txt"
+    --f <- readFile "./test.txt"
+    let tower = towers S.empty (cycle (init f)) rocks
+    print $ height (tower!!2022)
+
+    {- 
+    let d = allIndex True $ chng $ map (\t -> topFull t (height t)) (take 5000 tower)
+    print d
+    print $ findCycle d -- just obviously wrong
+    print $ findCycle2 d -- wtf, empty result, ofc this is cyclic
+        {-manually looking the main task it gives
+        124,
+        463,253,43,38,4,9,191,132,3,163,9,8,165,148,1,4,44,
+        463,253,43,38,4,9,191,132,3,163,9,8,165,148,1,4,44,
+        463,253,43,38,4,9,191,132,3,163,9,8
+        124 steps prefix
+        then a repeating pattern every (map (1+) cause how allIndex works)
+        -}
+    print $ sum $ map (1+) [463,253,43,38,4,9,191,132,3,163,9,8,165,148,1,4,44]
+    -}
+    print $ towersFast f 1000000000000
+
+---------for analysis--------
+
 isFullLine :: (Ord a, Ord b, Num a) => S.Set (a, b) -> b -> Bool
 isFullLine tower l = S.member (0,l) tower && S.member (1,l) tower &&
                         S.member (2,l) tower && S.member (3,l) tower &&
@@ -62,29 +94,47 @@ topFull :: (Ord a, Ord t, Num t, Num a) => S.Set (a, t) -> t -> t
 topFull tower 0 = 0
 topFull tower l = if isFullLine tower l then l else topFull tower (l-1)
 
-towersFast :: [Char] -> Int -> Integer
-towersFast f n = height tower1 + (((toInteger n - 124) `div` 1678)*(height (t!!(1678+124)) - height (t!!124)))
-    where 
-        t = towers S.empty (cycle (init f)) rocks
-        tower1 = t!! (124 + ((n - 124) `mod` 1678))
-
-main :: IO ()
-main = do
-    f <- readFile "./input.txt"
-    --f <- readFile "./test.txt"
-    let tower = towers S.empty (cycle (init f)) rocks
-    print $ S.findMax (S.map snd (tower!!2022))
-
-    print $ towersFast f 1000000000000 --tut nicht
-
 allIndex :: (Eq a) => a -> [a] -> [Int]
-allIndex elem [] = []
-allIndex elem list = first : allIndex elem (drop (first+1) list)
+allIndex elem list = case first of
+        Nothing -> []
+        Just a -> a : allIndex elem (drop (a+1) list)
     where
-        first = fromJust $ elemIndex elem list 
+        first = elemIndex elem list 
 
 diff :: Num c => [c] -> [c]
 diff list = zipWith (-) (tail list) list
 
 chng :: Eq c => [c] -> [Bool]
 chng list = zipWith (/=) (tail list) list
+
+{- via https://wiki.haskell.org/Floyd%27s_cycle-finding_algorithm -}
+findCycle :: Eq a => [a] -> ([a],[a])
+findCycle xxs = fCycle xxs xxs
+  where fCycle (x:xs) (_:y:ys)
+         | x == y              = fStart xxs xs
+         | otherwise           = fCycle xs ys
+        fCycle _      _        = (xxs,[]) -- not cyclic
+        fStart (x:xs) (y:ys)
+         | x == y              = ([], x:fLength x xs)
+         | otherwise           = let (as,bs) = fStart xs ys in (x:as,bs)
+        fLength x (y:ys)
+         | x == y              = []
+         | otherwise           = y:fLength x ys
+
+{- via https://rosettacode.org/wiki/Cycle_detection#Haskell -}
+findCycle2 :: Eq a => [a] -> Maybe ([a], Int, Int)
+findCycle2 lst =
+  do l <- findCycleLength lst
+     mu <- findIndex (uncurry (==)) $ zip lst (drop l lst)
+     let c = take l $ drop mu lst
+     return (c, l, mu)
+
+findCycleLength :: Eq a => [a] -> Maybe Int
+findCycleLength [] = Nothing
+findCycleLength (x:xs) =
+  let loop _ _ _ [] = Nothing
+      loop pow lam x (y:ys)
+        | x == y     = Just lam
+        | pow == lam = loop (2*pow) 1 y ys
+        | otherwise  = loop pow (1+lam) x ys
+  in loop 1 1 x xs
