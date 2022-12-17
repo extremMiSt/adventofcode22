@@ -2,7 +2,6 @@ module Main where
 import Data.Char (ord)
 import Data.List (elemIndex)
 import Data.Maybe (fromJust)
-import Debug.Trace (trace)
 
 lookNeighbor :: [String] -> [(Int,Int,Int)] -> [(Int,Int,Int)]
 lookNeighbor map ((x,y,l):q) = q ++ up ++ down ++ left ++ right
