@@ -61,10 +61,10 @@ instance Graph (S.Set Cube) Cube where
         l5 = if ((c-1) >= -1) && S.notMember (a, b, c-1) set then (a, b, c-1) : l6 else l6
         l6 = [(a, b, c + 1) | ((c + 1) <= 20) && S.notMember (a, b, c + 1) set]
 
-reacheableDFS :: (Graph b a) => b -> S.Set a -> Q.Seq a -> S.Set a
-reacheableDFS graph visited Q.Empty = S.empty
-reacheableDFS graph visited (e:<|q) | e `elem` visited = reacheableDFS graph visited q
-                                    | otherwise = S.insert e (reacheableDFS graph (S.insert e visited) (q >< Q.fromList (neighbours graph e)))
+reacheableBFS :: (Graph b a) => b -> S.Set a -> Q.Seq a -> S.Set a
+reacheableBFS graph visited Q.Empty = S.empty
+reacheableBFS graph visited (e:<|q) | e `elem` visited = reacheableBFS graph visited q
+                                    | otherwise = S.insert e (reacheableBFS graph (S.insert e visited) (q >< Q.fromList (neighbours graph e)))
 
 main :: IO ()
 main = do
@@ -73,7 +73,7 @@ main = do
     let faces = rdups $ concatMap (sides . parse) (lines f)
     print $ length faces
 
-    let outside = reacheableDFS (S.fromList (map parse (lines f))) S.empty (Q.singleton ((-1,-1,-1)::Cube))
+    let outside = reacheableBFS (S.fromList (map parse (lines f))) S.empty (Q.singleton ((-1,-1,-1)::Cube))
     let oFaces = rdups $ concatMap sides outside
     print $ length $ intersect oFaces faces
 
