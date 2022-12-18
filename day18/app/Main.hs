@@ -47,7 +47,7 @@ boundsMin c = (x,y,z)
         y = minimum $ map (\(a,b,c) -> b) c
         z = minimum $ map (\(a,b,c) -> c) c
 
-class Graph b a where 
+class Ord a => Graph b a where 
     neighbours :: b -> a -> [a]
 
 instance Graph (S.Set Cube) Cube where
@@ -61,7 +61,7 @@ instance Graph (S.Set Cube) Cube where
         l5 = if ((c-1) >= -1) && S.notMember (a, b, c-1) set then (a, b, c-1) : l6 else l6
         l6 = [(a, b, c + 1) | ((c + 1) <= 20) && S.notMember (a, b, c + 1) set]
 
-reacheableDFS :: (Ord a, Graph b a) => b -> S.Set a -> Q.Seq a -> S.Set a
+reacheableDFS :: (Graph b a) => b -> S.Set a -> Q.Seq a -> S.Set a
 reacheableDFS graph visited Q.Empty = S.empty
 reacheableDFS graph visited (e:<|q) | e `elem` visited = reacheableDFS graph visited q
                                     | otherwise = S.insert e (reacheableDFS graph (S.insert e visited) (q >< Q.fromList (neighbours graph e)))
