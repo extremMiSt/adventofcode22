@@ -1,36 +1,44 @@
 module Main where
-import Data.List (elemIndex, delete)
+import Data.List (elemIndex)
 import Data.Maybe (fromJust)
-import Debug.Trace (trace)
+import qualified Data.CircularList as C
 
-mix :: (Eq b, Show b, Integral b) => [(Int, b)] -> [(Int, b)] -> [(Int, b)]
-mix [] list = list
-mix (a:as) list = mix as (trace (show complete) complete)
+mix ::[Integer] -> Integer -> Integer -> C.CList (Integer,Integer)
+mix list factor = mixRounds (C.fromList tupAfac)
+    where
+        tupAfac = zip (map (*factor) list) [0..]
+        mixRounds l 0 = l
+        mixRounds l n = mixRounds (cMix tupAfac l) (n-1)
+
+sumCoord :: (Eq a, Num a) => [a] -> a
+sumCoord list = list!!((i+1000)`mod` length list) + list!!((i+2000)`mod` length list) + list!!((i+3000)`mod` length list)
     where 
-        complete = move list a (fst a)
+        i = fromJust (elemIndex 0 list)
 
-moveLeft :: Eq a => [a] -> a -> [a] -> [a]
-moveLeft l a [b] | a==b = a: init l
-moveLeft l a (l1:l2:ls) | l1 /= a = l1: moveLeft l a (l2:ls)
-moveLeft l a (l1:l2:ls) | l1 == a = l2:l1:ls
+cMix :: (Eq b, Show b, Integral b) => [(Integer, b)] -> C.CList (Integer,b) -> C.CList (Integer,b)
+cMix [] clist = clist
+cMix (a:as) clist = cMix as complete
+    where 
+        complete = cMove clist a (fst a)
 
-moveRight :: Eq a => [a] -> a -> [a] -> [a]
-moveRight l a (l1:ls) | a==l1 = tail l ++ [a]
-moveRight l a (l1:l2:ls) | l2 /= a = l1: moveRight l a (l2:ls)
-moveRight l a (l1:l2:ls) | l2 == a = l2:l1:ls
-
-move :: (Num a, Ord a, Eq t) => [t] -> t -> a -> [t]
-move l a n | n == 0 = l
-move l a n | n > 0 = move (moveLeft l a l) a (n-1)
-move l a n | n < 0 = move (moveRight l a l) a (n+1)
+cMove :: (Eq t, Show t) => C.CList t -> t -> Integer -> C.CList t
+cMove clist elem d = clist'
+    where 
+        focused = fromJust $ C.rotateTo elem clist
+        removed = C.removeL focused
+        rotated = C.rotN (fromInteger d `rem` length removed) removed
+        clist' = C.insertL elem rotated
 
 main :: IO ()
 main = do
-    --f <- readFile "./input.txt"
-    f <- readFile "./test.txt"
-    let list = map read (lines f) :: [Int]
-    let iList = zip list ([0..]::[Integer]) -- make them unique
-    print iList
-    print $ mix iList iList
+    f <- readFile "./input.txt"
+    --f <- readFile "./test.txt"
+    let list = map read (lines f) :: [Integer]
+ 
+    let task1 = C.toList (mix list 1 1)
+    print $ sumCoord (map fst task1)
+
+    let task2 = C.toList (mix list 811589153 10)
+    print $ sumCoord (map fst task2)
 
     putStrLn "done"
