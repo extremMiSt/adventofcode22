@@ -81,7 +81,7 @@ instance Graph  (Blueprint, S.Set State) State where
             b' = b + bb
             g' = g + gb
             time = t<24
-            obPoss = o == getObOre (fst blue)
+            obPoss = o >= getObOre (fst blue)
             cbPoss = o >= getCbOre (fst blue)
             bbPoss = (o >= getBbOre (fst blue)) && (c >= getBbClay (fst blue))
             gbPoss = (o >= getGbOre (fst blue)) && (b >= getGbObs (fst blue))

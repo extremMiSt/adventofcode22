@@ -113,23 +113,23 @@ mapEdge = up1 `M.union` right1 `M.union` down1 `M.union`
     where
         up1 = M.fromList (zip [(DUp,x,0) | x <- [101..150]] [(DUp,x,200)| x <- [1..50]])
         right1 = M.fromList (zip [(DRight,151,x) | x <- [1..50]] (reverse [(DLeft,100,x)| x <- [101..150]]))
-        down1 = M.fromList (zip [(DDown,x,51) | x <- [101..150]] [(DRight,100,x)| x <- [51..100]])
+        down1 = M.fromList (zip [(DDown,x,51) | x <- [101..150]] [(DLeft,100,x)| x <- [51..100]])
         up2 = M.fromList (zip [(DUp,x,0) | x <- [51..100]] [(DRight,1,x)| x <- [151..200]])
         left2 = M.fromList (zip [(DLeft,50,x) | x <- [1..50]] (reverse [(DRight,1,x)| x <- [101..150]]))
-        left3 = M.fromList (zip [(DLeft,50,x) | x <- [51..100]] [(DUp,x,101)| x <- [1..50]])
+        left3 = M.fromList (zip [(DLeft,50,x) | x <- [51..100]] [(DDown,x,101)| x <- [1..50]])
         right3 = M.fromList (zip [(DRight,101,x) | x <- [51..100]] [(DUp,x,50)| x <- [101..150]])
         right4 = M.fromList (zip [(DRight,101,x) | x <- [101..150]] (reverse [(DLeft,150,x)| x <- [1..50]]))
-        down4 = M.fromList (zip [(DDown,x,151) | x <- [51..100]] (reverse [(DLeft,50,x)| x <- [1..151]]))
+        down4 = M.fromList (zip [(DDown,x,151) | x <- [51..100]] [(DLeft,50,x)| x <- [151..200]])
         up5 = M.fromList (zip [(DUp,x,100) | x <- [1..50]] [(DRight,51,x)| x <- [51..100]])
         left5 = M.fromList (zip [(DLeft,0,x) | x <- [101..150]] (reverse [(DRight,51,x)| x <- [1..50]]))
         right6 = M.fromList (zip [(DRight,51,x) | x <- [151..200]] [(DUp,x,150)| x <- [51..100]])
         down6 = M.fromList (zip [(DDown,x,201) | x <- [1..50]] [(DDown,x,1)| x <- [101..150]])
-        left6 = M.fromList (zip [(DLeft,0,x) | x <- [151..200]] [(DUp,x,1)| x <- [51..100]])
+        left6 = M.fromList (zip [(DLeft,0,x) | x <- [151..200]] [(DDown,x,1)| x <- [51..100]])
 
 m :: HasCallStack => (Direction, (Int, Int)) -> (Direction, (Int, Int))
 m t@(d,(x,y)) = case mapEdge M.!? (d,x,y) of
     Just (d',x',y') -> (d', (x',y'))
-    Nothing -> if (x<1 || y<1) then trace (show (x,y)) undefined else t
+    Nothing -> t
 
 next2 :: HasCallStack => [String] -> Direction -> Pos -> Maybe (Direction, Pos)
 next2 map dir (x,y) = case dir of 
@@ -141,9 +141,6 @@ next2 map dir (x,y) = case dir of
           | (d,(x',y')) <- m (dir,(x,y+1)), (map%y')%x' == '#' -> Nothing
     DLeft | (d,(x',y')) <- m (dir,(x-1,y)), (map%y')%x' == '.' -> Just (d, (x', y'))
           | (d,(x',y')) <- m (dir,(x-1,y)), (map%y')%x' == '#' -> Nothing
-    _ -> trace (show (dir,(x,y)) ++ show (x-1,y) ++ show (m (dir,(x-1,y))) ++ show ((map%why)%ex)) undefined
-        where 
-            (rich, (ex, why)) = m (dir,(x-1,y))
 
 walk2 :: HasCallStack => [String] -> Direction -> Length -> Pos -> (Direction, Pos)
 walk2 map dir 0 pos = (dir,pos)
