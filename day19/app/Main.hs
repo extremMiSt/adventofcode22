@@ -86,15 +86,15 @@ instance Graph  (Blueprint, S.Set State) State where
             bbPoss = (o >= getBbOre (fst blue)) && (c >= getBbClay (fst blue))
             gbPoss = (o >= getGbOre (fst blue)) && (b >= getGbObs (fst blue))
             skeep = (t',o',ob,c',cb,b',bb,g',gb)
-            keep = [skeep | time && not (obPoss && cbPoss && bbPoss && gbPoss) && not (waste (fst blue) skeep) && not gbPoss && S.null (S.filter (worse skeep) (snd blue))]
+            keep = [skeep | time && not (obPoss && cbPoss && bbPoss && gbPoss) && not (waste (fst blue) skeep) && not gbPoss {-&& S.null (S.filter (worse skeep) (snd blue))-}]
             snob = (t',o'-getObOre (fst blue),ob+1,c',cb,b',bb,g',gb)
-            nob = [snob | time && obPoss && not gbPoss && not (waste (fst blue) snob) && S.null (S.filter (worse snob) (snd blue))]
+            nob = [snob | time && obPoss && not gbPoss && not (waste (fst blue) snob) {-&& S.null (S.filter (worse snob) (snd blue))-}]
             sncb = (t',o'-getCbOre (fst blue),ob,c',cb+1,b',bb,g',gb)
-            ncb = [sncb | time && cbPoss && not gbPoss && not (waste (fst blue) sncb) && S.null (S.filter (worse sncb) (snd blue))]
+            ncb = [sncb | time && cbPoss && not gbPoss && not (waste (fst blue) sncb) {-&& S.null (S.filter (worse sncb) (snd blue))-}]
             snbb = (t',o'-getBbOre (fst blue),ob,c'-getBbClay (fst blue),cb,b',bb+1,g',gb)
-            nbb = [snbb | time && bbPoss && not gbPoss && not (waste (fst blue) snbb) && S.null (S.filter (worse snbb) (snd blue))]
+            nbb = [snbb | time && bbPoss && not gbPoss && not (waste (fst blue) snbb) {-&& S.null (S.filter (worse snbb) (snd blue))-}]
             sngb = (t',o'-getGbOre (fst blue),ob,c',cb,b'-getGbObs (fst blue),bb,g',gb+1)
-            ngb = [sngb | time && gbPoss && not (waste (fst blue) sngb) && S.null (S.filter (worse sngb) (snd blue))]
+            ngb = [sngb | time && gbPoss && not (waste (fst blue) sngb) {-&& S.null (S.filter (worse sngb) (snd blue))-}]
 
 worse :: State -> State -> Bool
 worse s1@(t,o,ob,c,cb,b,bb,g,gb) s2@(t',o',ob',c',cb',b',bb',g',gb') 
